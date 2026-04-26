@@ -23,7 +23,6 @@ from PyQt5.QtWidgets import (
 LEFT_EYE_OUTER_IDX = 33
 RIGHT_EYE_OUTER_IDX = 263
 DEFAULT_CAMERA_SIZE = (1280, 720)  # (width, height)
-DEFAULT_TARGET_ASPECT = (16, 9)  # (w_ratio, h_ratio)
 
 
 @dataclass
@@ -41,13 +40,11 @@ class PoseMonitorThread(QThread):
         self,
         threshold: float = 6.0,
         camera_size: Tuple[int, int] = DEFAULT_CAMERA_SIZE,
-        target_aspect: Tuple[int, int] = DEFAULT_TARGET_ASPECT,
     ):
         super().__init__()
         self._threshold = threshold
         self._running = True
         self._camera_size = camera_size
-        self._target_aspect = target_aspect
 
     def set_threshold(self, threshold: float) -> None:
         self._threshold = threshold
@@ -83,7 +80,6 @@ class PoseMonitorThread(QThread):
                 continue
 
             frame = cv2.flip(frame, 1)
-            frame = self._crop_to_aspect(frame, self._target_aspect)
             rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             results = mesh.process(rgb)
 
@@ -135,28 +131,6 @@ class PoseMonitorThread(QThread):
 
         mesh.close()
         cap.release()
-
-    @staticmethod
-    def _crop_to_aspect(frame, aspect: Tuple[int, int]):
-        """Center-crop frame to target aspect ratio without distortion."""
-        target_w_ratio, target_h_ratio = aspect
-        frame_h, frame_w = frame.shape[:2]
-        target_ratio = target_w_ratio / target_h_ratio
-        current_ratio = frame_w / frame_h
-
-        if abs(current_ratio - target_ratio) < 1e-3:
-            return frame
-
-        if current_ratio > target_ratio:
-            # too wide -> crop width
-            new_w = int(frame_h * target_ratio)
-            x0 = (frame_w - new_w) // 2
-            return frame[:, x0 : x0 + new_w]
-
-        # too tall -> crop height
-        new_h = int(frame_w / target_ratio)
-        y0 = (frame_h - new_h) // 2
-        return frame[y0 : y0 + new_h, :]
 
 
 class MainWindow(QMainWindow):
