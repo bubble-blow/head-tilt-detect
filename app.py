@@ -1,6 +1,7 @@
 import math
 import sys
 from dataclasses import dataclass
+from typing import Any, Optional
 
 import cv2
 import mediapipe as mp
@@ -25,8 +26,8 @@ RIGHT_EYE_OUTER_IDX = 263
 
 @dataclass
 class PostureResult:
-    frame_rgb: any
-    angle: float | None
+    frame_rgb: Optional[Any]
+    angle: Optional[float]
     status_text: str
     ok: bool
 
@@ -130,7 +131,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("坐姿检测助手（PyQt + MediaPipe）")
         self.resize(1040, 700)
 
-        self.monitor_thread: PoseMonitorThread | None = None
+        self.monitor_thread: Optional[PoseMonitorThread] = None
 
         root = QWidget()
         self.setCentralWidget(root)
