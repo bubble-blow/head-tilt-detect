@@ -59,7 +59,7 @@ class PoseMonitorThread(QThread):
                 PostureResult(
                     frame_rgb=None,
                     angle=None,
-                    status_text="无法打开摄像头，请检查权限或设备。",
+                    status_text="😿 无法打开摄像头，请检查权限或设备。",
                     ok=False,
                 )
             )
@@ -84,7 +84,7 @@ class PoseMonitorThread(QThread):
             results = mesh.process(rgb)
 
             angle = None
-            status_text = "未检测到人脸"
+            status_text = "🙈 未检测到人脸"
             ok = False
 
             if results.multi_face_landmarks:
@@ -102,11 +102,11 @@ class PoseMonitorThread(QThread):
 
                 angle = math.degrees(math.atan2(ry - ly, rx - lx))
                 if abs(angle) <= self._threshold:
-                    status_text = "坐姿良好：头部基本水平"
+                    status_text = "✅ 坐姿良好：头部基本水平"
                     ok = True
                 else:
                     direction = "左倾" if angle > 0 else "右倾"
-                    status_text = f"请调整姿势：头部{direction}"
+                    status_text = f"🪄 请调整姿势：头部{direction}"
 
                 cv2.putText(
                     frame,
@@ -136,7 +136,7 @@ class PoseMonitorThread(QThread):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("坐姿检测助手（PyQt + MediaPipe）")
+        self.setWindowTitle("✨ 坐姿检测小助手（PyQt + MediaPipe）")
         self.resize(1040, 700)
 
         self.monitor_thread: Optional[PoseMonitorThread] = None
@@ -153,10 +153,10 @@ class MainWindow(QMainWindow):
         self.video_label.setStyleSheet(
             """
             QLabel {
-                background-color: #101826;
-                border: 2px solid #2f4863;
-                border-radius: 14px;
-                color: #9eb6cc;
+                background-color: #fff7fc;
+                border: 3px solid #ffc8e2;
+                border-radius: 22px;
+                color: #b3698c;
                 font-size: 18px;
             }
             """
@@ -168,12 +168,12 @@ class MainWindow(QMainWindow):
             """
             QFrame {
                 background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                    stop:0 #1a2b3f, stop:1 #122033);
-                border-radius: 14px;
-                border: 1px solid #33506f;
+                    stop:0 #ffe8f3, stop:1 #fff4cc);
+                border-radius: 20px;
+                border: 2px solid #ffd1ea;
             }
             QLabel {
-                color: #e1ecf7;
+                color: #7b4a64;
             }
             """
         )
@@ -182,17 +182,22 @@ class MainWindow(QMainWindow):
         panel_layout.setContentsMargins(16, 18, 16, 18)
         panel_layout.setSpacing(16)
 
-        title = QLabel("坐姿状态")
-        title.setFont(QFont("Microsoft YaHei", 15, QFont.Bold))
+        title = QLabel("🐰 坐姿状态")
+        title.setFont(QFont("Microsoft YaHei UI", 15, QFont.Bold))
+        title.setStyleSheet("color:#c45d8d;")
+
+        subtitle = QLabel("保持水平，做一只挺拔的小兔叽～")
+        subtitle.setWordWrap(True)
+        subtitle.setStyleSheet("color:#9f6b86; font-size:13px;")
 
         self.status_label = QLabel("等待启动")
         self.status_label.setWordWrap(True)
         self.status_label.setStyleSheet(
-            "color: #b8d6ff; background:#0f1d2d; border-radius:10px; padding:12px;"
+            "color: #8a4f6e; background:#fff8fb; border:2px solid #ffd7eb; border-radius:14px; padding:12px;"
         )
 
-        self.angle_label = QLabel("眼线角度：--")
-        self.threshold_label = QLabel("容忍阈值：6°")
+        self.angle_label = QLabel("🎯 眼线角度：--")
+        self.threshold_label = QLabel("🌸 容忍阈值：6°")
 
         self.threshold_slider = QSlider(Qt.Horizontal)
         self.threshold_slider.setMinimum(2)
@@ -210,32 +215,33 @@ class MainWindow(QMainWindow):
             btn.setStyleSheet(
                 """
                 QPushButton {
-                    background-color: #2d8cff;
+                    background-color: #ff9ecb;
                     color: white;
                     border: none;
-                    border-radius: 10px;
+                    border-radius: 14px;
                     font-size: 16px;
                     font-weight: 600;
                 }
                 QPushButton:disabled {
-                    background-color: #516b8a;
-                    color: #d4dde7;
+                    background-color: #d4b6c7;
+                    color: #fdf7fb;
                 }
                 QPushButton:hover:!disabled {
-                    background-color: #56a0ff;
+                    background-color: #ffb4d8;
                 }
                 """
             )
 
         self.stop_btn.setStyleSheet(
             self.stop_btn.styleSheet()
-            + "QPushButton { background-color: #ef5350; } QPushButton:hover:!disabled { background-color:#f27876; }"
+            + "QPushButton { background-color: #ff8f95; } QPushButton:hover:!disabled { background-color:#ffabb0; }"
         )
 
         self.start_btn.clicked.connect(self.start_monitor)
         self.stop_btn.clicked.connect(self.stop_monitor)
 
         panel_layout.addWidget(title)
+        panel_layout.addWidget(subtitle)
         panel_layout.addWidget(self.status_label)
         panel_layout.addWidget(self.angle_label)
         panel_layout.addWidget(self.threshold_label)
@@ -247,10 +253,27 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.video_label, stretch=1)
         main_layout.addWidget(control_panel)
 
-        self.setStyleSheet("QMainWindow { background-color: #0c1422; }")
+        self.setStyleSheet(
+            """
+            QMainWindow { background-color: #fff1f8; }
+            QSlider::groove:horizontal {
+                border: 1px solid #f3b8d7;
+                height: 8px;
+                background: #ffe2f1;
+                border-radius: 4px;
+            }
+            QSlider::handle:horizontal {
+                background: #ff92c3;
+                border: 1px solid #f07ab0;
+                width: 18px;
+                margin: -6px 0;
+                border-radius: 9px;
+            }
+            """
+        )
 
     def on_threshold_changed(self, value: int) -> None:
-        self.threshold_label.setText(f"容忍阈值：{value}°")
+        self.threshold_label.setText(f"🌸 容忍阈值：{value}°")
         if self.monitor_thread:
             self.monitor_thread.set_threshold(float(value))
 
@@ -265,7 +288,7 @@ class MainWindow(QMainWindow):
 
         self.start_btn.setEnabled(False)
         self.stop_btn.setEnabled(True)
-        self.status_label.setText("正在启动摄像头...")
+        self.status_label.setText("📷 正在启动摄像头...")
 
     def stop_monitor(self) -> None:
         if self.monitor_thread:
@@ -293,16 +316,16 @@ class MainWindow(QMainWindow):
         self.status_label.setText(result.status_text)
         self.status_label.setStyleSheet(
             (
-                "color: #d3ffdf; background:#173624; border-radius:10px; padding:12px;"
+                "color: #3f7d57; background:#ebfff0; border:2px solid #b8eec7; border-radius:14px; padding:12px;"
                 if result.ok
-                else "color: #ffd6d6; background:#472126; border-radius:10px; padding:12px;"
+                else "color: #9b4f67; background:#fff1f6; border:2px solid #ffcfe1; border-radius:14px; padding:12px;"
             )
         )
 
         if result.angle is None:
-            self.angle_label.setText("眼线角度：--")
+            self.angle_label.setText("🎯 眼线角度：--")
         else:
-            self.angle_label.setText(f"眼线角度：{result.angle:.2f}°")
+            self.angle_label.setText(f"🎯 眼线角度：{result.angle:.2f}°")
 
     def closeEvent(self, event):
         self.stop_monitor()
