@@ -39,6 +39,20 @@ python app.py
    `angle = degrees(atan2(y_right - y_left, x_right - x_left))`
 4. 当 `abs(angle) <= threshold` 判定为“头部基本水平”。
 
+## 如何控制画面分辨率和宽高比
+
+在 `app.py` 顶部可以直接修改两个常量：  
+
+- `DEFAULT_CAMERA_SIZE = (1280, 720)`：请求摄像头输出分辨率（宽, 高）。  
+- `DEFAULT_TARGET_ASPECT = (16, 9)`：最终显示/计算使用的宽高比。  
+
+程序会先请求摄像头分辨率，再对每帧做**居中裁剪**以匹配目标宽高比，避免图像拉伸变形。
+例如你想用 4:3 比例，可改成：
+
+```python
+DEFAULT_TARGET_ASPECT = (4, 3)
+```
+
 ## 注意事项
 
 - 首次运行需允许系统摄像头权限。
